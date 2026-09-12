@@ -1,0 +1,62 @@
+@model List<ActivityLog>
+@{
+    ViewData["Title"] = "Activity Logs";
+    var actions = ViewData["Actions"] as List<string> ?? new();
+}
+<partial name="_PrintHeader" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Activity Logs</h2>
+    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print Logs</button>
+</div>
+
+<form method="get" asp-controller="ActivityLogs" asp-action="Index" class="row g-2 mb-3 no-print filter-form">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by user or description" />
+    </div>
+    <div class="col-auto">
+        <select name="action" class="form-select">
+            <option value="">All Actions</option>
+            @foreach (var a in actions)
+            {
+                if ((string?)ViewData["ActionFilter"] == a)
+                {
+                    <option value="@a" selected>@a</option>
+                }
+                else
+                {
+                    <option value="@a">@a</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <input type="date" name="date" value="@ViewData["DateFilter"]" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="ActivityLogs" asp-action="Index" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No activity logs found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead><tr><th>User</th><th>Action</th><th>Description</th><th>Timestamp</th></tr></thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.UserName</td>
+                    <td>@log.Action</td>
+                    <td>@log.Description</td>
+                    <td>@log.Timestamp.ToString("dd MMM yyyy HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

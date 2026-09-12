@@ -1,0 +1,68 @@
+@model List<Event>
+@{
+    ViewData["Title"] = "Activity Report";
+    var clubOptions = ViewData["ClubOptions"] as List<Club> ?? new();
+}
+<partial name="_PrintHeader" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Activity Report</h2>
+    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print Report</button>
+</div>
+
+<form method="get" asp-controller="Reports" asp-action="ActivityReport" class="row g-2 mb-3 no-print filter-form">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by title or club" />
+    </div>
+    <div class="col-auto">
+        <select name="filter" class="form-select">
+            <option value="">All</option>
+            <option value="Upcoming" selected="@((string?)ViewData["Filter"] == "Upcoming")">Upcoming</option>
+            <option value="Past" selected="@((string?)ViewData["Filter"] == "Past")">Past</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="clubId" class="form-select">
+            <option value="">All Clubs</option>
+            @foreach (var c in clubOptions)
+            {
+                if ((int?)ViewData["ClubFilter"] == c.ClubId)
+                {
+                    <option value="@c.ClubId" selected>@c.ClubName</option>
+                }
+                else
+                {
+                    <option value="@c.ClubId">@c.ClubName</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Reports" asp-action="ActivityReport" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No activities found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead><tr><th>Activity</th><th>Club</th><th>Date</th><th>Start</th><th>End</th><th>Location</th></tr></thead>
+        <tbody>
+            @foreach (var e in Model)
+            {
+                <tr>
+                    <td>@e.Title</td>
+                    <td>@e.Club?.ClubName</td>
+                    <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                    <td>@DateTime.Today.Add(e.StartTime).ToString("hh:mm tt")</td>
+                    <td>@DateTime.Today.Add(e.EndTime).ToString("hh:mm tt")</td>
+                    <td>@e.Location</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

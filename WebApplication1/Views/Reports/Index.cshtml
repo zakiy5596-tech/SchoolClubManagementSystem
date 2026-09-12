@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Reports";
+}
+<h2>Reports</h2>
+<div class="row g-3">
+    @if (User.IsInRole(Roles.Admin))
+    {
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5>Student Report</h5>
+                    <a asp-controller="Reports" asp-action="Students" class="btn btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5>Club Report</h5>
+                    <a asp-controller="Reports" asp-action="ClubsReport" class="btn btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5>Membership Report</h5>
+                <a asp-controller="Reports" asp-action="MembershipReport" class="btn btn-outline-primary">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5>Activity Report</h5>
+                <a asp-controller="Reports" asp-action="ActivityReport" class="btn btn-outline-primary">View</a>
+            </div>
+        </div>
+    </div>
+</div>

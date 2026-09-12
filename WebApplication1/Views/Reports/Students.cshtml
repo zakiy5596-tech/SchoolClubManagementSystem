@@ -1,0 +1,48 @@
+@model List<Student>
+@{
+    ViewData["Title"] = "Student Report";
+}
+<partial name="_PrintHeader" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Student Report</h2>
+    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print Report</button>
+</div>
+
+<form method="get" asp-controller="Reports" asp-action="Students" class="row g-2 mb-3 no-print filter-form">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by name or student number" />
+    </div>
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Active" selected="@((string?)ViewData["StatusFilter"] == "Active")">Active</option>
+            <option value="Inactive" selected="@((string?)ViewData["StatusFilter"] == "Inactive")">Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Reports" asp-action="Students" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No students found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead><tr><th>Student Name</th><th>Student Number</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.User?.FullName</td>
+                    <td>@s.StudentNumber</td>
+                    <td>@s.User?.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
