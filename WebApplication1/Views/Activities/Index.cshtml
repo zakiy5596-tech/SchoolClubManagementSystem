@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "My Activities";
+    var clubOptions = ViewData["ClubOptions"] as List<Club> ?? new();
+    var upcoming = ViewData["Upcoming"] as List<Event> ?? new();
+    var past = ViewData["Past"] as List<Event> ?? new();
+    var filter = ViewData["Filter"] as string ?? "All";
+}
+<h2>My Activities</h2>
+
+<form method="get" asp-controller="Activities" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by activity title or club" />
+    </div>
+    <div class="col-auto">
+        <select name="filter" class="form-select">
+            <option value="All" selected="@(filter == "All")">All</option>
+            <option value="Upcoming" selected="@(filter == "Upcoming")">Upcoming</option>
+            <option value="Past" selected="@(filter == "Past")">Past</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="clubId" class="form-select">
+            <option value="">All Clubs</option>
+            @foreach (var c in clubOptions)
+            {
+                if ((int?)ViewData["ClubFilter"] == c.ClubId)
+                {
+                    <option value="@c.ClubId" selected>@c.ClubName</option>
+                }
+                else
+                {
+                    <option value="@c.ClubId">@c.ClubName</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Activities" asp-action="Index" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!upcoming.Any() && !past.Any())
+{
+    <p>No activities found.</p>
+}
+else
+{
+    @if (filter != "Past")
+    {
+        <h4>Upcoming Activities</h4>
+        @if (!upcoming.Any())
+        {
+            <p>No upcoming activities found.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered mb-4">
+                <thead>
+                    <tr><th>Title</th><th>Club</th><th>Date</th><th>Start</th><th>End</th><th>Location</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in upcoming)
+                    {
+                        <tr>
+                            <td>@e.Title</td>
+                            <td>@e.Club?.ClubName</td>
+                            <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                            <td>@DateTime.Today.Add(e.StartTime).ToString("hh:mm tt")</td>
+                            <td>@DateTime.Today.Add(e.EndTime).ToString("hh:mm tt")</td>
+                            <td>@e.Location</td>
+                            <td><a asp-controller="Activities" asp-action="Details" asp-route-id="@e.EventId" class="btn btn-sm btn-outline-primary">Details</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+
+    @if (filter != "Upcoming")
+    {
+        <h4>Past Activities</h4>
+        @if (!past.Any())
+        {
+            <p>No past activities found.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr><th>Title</th><th>Club</th><th>Date</th><th>Start</th><th>End</th><th>Location</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in past)
+                    {
+                        <tr>
+                            <td>@e.Title</td>
+                            <td>@e.Club?.ClubName</td>
+                            <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                            <td>@DateTime.Today.Add(e.StartTime).ToString("hh:mm tt")</td>
+                            <td>@DateTime.Today.Add(e.EndTime).ToString("hh:mm tt")</td>
+                            <td>@e.Location</td>
+                            <td><a asp-controller="Activities" asp-action="Details" asp-route-id="@e.EventId" class="btn btn-sm btn-outline-primary">Details</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+}

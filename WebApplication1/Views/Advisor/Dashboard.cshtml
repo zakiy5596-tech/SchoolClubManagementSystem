@@ -1,0 +1,86 @@
+@model AdvisorDashboardViewModel
+@{
+    ViewData["Title"] = "Advisor Dashboard";
+}
+<h2>Advisor Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>@Model.AssignedClubs.Count</h3>
+                <p class="mb-0">Assigned Clubs</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>@Model.TotalMembers</h3>
+                <p class="mb-0">Total Members</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>@Model.PendingMembershipRequests</h3>
+                <p class="mb-0">Pending Requests</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>@Model.UpcomingActivities.Count</h3>
+                <p class="mb-0">Upcoming Activities</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>My Clubs</h4>
+@if (!Model.AssignedClubs.Any())
+{
+    <p>No clubs found.</p>
+}
+else
+{
+    <div class="row mb-4">
+        @foreach (var c in Model.AssignedClubs)
+        {
+            <div class="col-md-4 mb-2">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@c.ClubName</h5>
+                        <p class="card-text">@c.Category</p>
+                        <a asp-controller="Clubs" asp-action="Details" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<h4>Upcoming Activities</h4>
+@if (!Model.UpcomingActivities.Any())
+{
+    <p>No upcoming activities found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Location</th></tr></thead>
+        <tbody>
+            @foreach (var e in Model.UpcomingActivities)
+            {
+                <tr>
+                    <td>@e.Title</td>
+                    <td>@e.Club?.ClubName</td>
+                    <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                    <td>@e.Location</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

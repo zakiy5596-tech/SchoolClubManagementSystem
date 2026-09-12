@@ -1,0 +1,119 @@
+@model StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+<h2>Welcome, @Model.Student.User?.FullName</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Student Information</h5>
+        <dl class="row mb-0">
+            <dt class="col-sm-2">Name</dt><dd class="col-sm-4">@Model.Student.User?.FullName</dd>
+            <dt class="col-sm-2">Student Number</dt><dd class="col-sm-4">@Model.Student.StudentNumber</dd>
+            <dt class="col-sm-2">Email</dt><dd class="col-sm-4">@Model.Student.User?.Email</dd>
+            <dt class="col-sm-2">Phone</dt><dd class="col-sm-4">@Model.Student.Phone</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h4>My Clubs</h4>
+        @if (!Model.MyClubs.Any())
+        {
+            <p>You have not joined any clubs yet.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead><tr><th>Club</th><th>Category</th><th>Advisor</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var m in Model.MyClubs)
+                    {
+                        <tr>
+                            <td>@m.Club?.ClubName</td>
+                            <td>@m.Club?.Category</td>
+                            <td>@m.Club?.Advisor?.User?.FullName</td>
+                            <td>@m.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        <a asp-controller="Clubs" asp-action="MyClubs" class="btn btn-sm btn-outline-primary">View All My Clubs</a>
+    </div>
+    <div class="col-md-6">
+        <h4>Available Clubs</h4>
+        @if (!Model.AvailableClubs.Any())
+        {
+            <p>No clubs found.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead><tr><th>Club</th><th>Category</th><th>Advisor</th></tr></thead>
+                <tbody>
+                    @foreach (var c in Model.AvailableClubs)
+                    {
+                        <tr>
+                            <td>@c.ClubName</td>
+                            <td>@c.Category</td>
+                            <td>@c.Advisor?.User?.FullName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        <a asp-controller="Clubs" asp-action="Available" class="btn btn-sm btn-outline-primary">View All Available Clubs</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Upcoming Activities</h4>
+        @if (!Model.UpcomingActivities.Any())
+        {
+            <p>No upcoming activities found.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead><tr><th>Title</th><th>Club</th><th>Date</th></tr></thead>
+                <tbody>
+                    @foreach (var e in Model.UpcomingActivities)
+                    {
+                        <tr>
+                            <td>@e.Title</td>
+                            <td>@e.Club?.ClubName</td>
+                            <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="col-md-6">
+        <h4>Recent Past Activities</h4>
+        @if (!Model.RecentPastActivities.Any())
+        {
+            <p>No past activities found.</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead><tr><th>Title</th><th>Club</th><th>Date</th></tr></thead>
+                <tbody>
+                    @foreach (var e in Model.RecentPastActivities)
+                    {
+                        <tr>
+                            <td>@e.Title</td>
+                            <td>@e.Club?.ClubName</td>
+                            <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+<a asp-controller="Activities" asp-action="Index" class="btn btn-outline-primary">View All My Activities</a>
