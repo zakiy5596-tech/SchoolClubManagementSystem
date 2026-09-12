@@ -1,0 +1,75 @@
+@model EventFormViewModel
+@{
+    ViewData["Title"] = "Edit Activity";
+}
+<h2>Edit Activity</h2>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-controller="Events" asp-action="Edit" asp-route-id="@Model.EventId" method="post" id="eventForm">
+            <input type="hidden" asp-for="EventId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="ClubId" class="form-label"></label>
+                <select asp-for="ClubId" class="form-select">
+                    @foreach (var c in Model.Clubs)
+                    {
+                        <option value="@c.ClubId">@c.ClubName</option>
+                    }
+                </select>
+                <span asp-validation-for="ClubId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="EventDate" class="form-label"></label>
+                <input asp-for="EventDate" class="form-control" type="date" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="StartTime" class="form-label"></label>
+                    <input asp-for="StartTime" id="StartTime" class="form-control" type="time" />
+                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="EndTime" class="form-label"></label>
+                    <input asp-for="EndTime" id="EndTime" class="form-control" type="time" />
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                    <span id="timeError" class="text-danger" style="display:none">End time cannot be earlier than start time.</span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Location" class="form-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        document.getElementById('eventForm').addEventListener('submit', function (e) {
+            var start = document.getElementById('StartTime').value;
+            var end = document.getElementById('EndTime').value;
+            var errorSpan = document.getElementById('timeError');
+            if (start && end && end <= start) {
+                errorSpan.style.display = 'inline';
+                e.preventDefault();
+            } else {
+                errorSpan.style.display = 'none';
+            }
+        });
+    </script>
+}
