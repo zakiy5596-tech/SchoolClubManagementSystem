@@ -1,0 +1,32 @@
+@media print {
+    .no-print, nav, .navbar, .sidebar, .btn, form.filter-form, .filter-bar, .action-column, .pagination {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .container-fluid {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    table, th, td {
+        border: 1px solid #000 !important;
+    }
+}
+
+.print-only {
+    display: none;
+}

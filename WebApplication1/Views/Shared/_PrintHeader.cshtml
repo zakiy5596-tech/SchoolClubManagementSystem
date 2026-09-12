@@ -1,0 +1,9 @@
+@{
+    var reportTitle = ViewData["ReportTitle"] as string ?? "Report";
+}
+<div class="print-only mb-3">
+    <h3 class="mb-0">School Club Management System</h3>
+    <h5>@reportTitle</h5>
+    <p>Date generated: @DateTime.Now.ToString("dd MMM yyyy HH:mm")</p>
+    <hr />
+</div>
