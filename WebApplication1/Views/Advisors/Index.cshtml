@@ -1,0 +1,75 @@
+@model List<Advisor>
+@{
+    ViewData["Title"] = "Club Advisors";
+}
+<partial name="_PrintHeader" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Club Advisors</h2>
+    <div>
+        <a asp-controller="Advisors" asp-action="Create" class="btn btn-primary">Add Advisor</a>
+        <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print Advisors</button>
+    </div>
+</div>
+
+<form method="get" asp-controller="Advisors" asp-action="Index" class="row g-2 mb-3 no-print filter-form">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by name" />
+    </div>
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Active" selected="@((string?)ViewData["StatusFilter"] == "Active")">Active</option>
+            <option value="Inactive" selected="@((string?)ViewData["StatusFilter"] == "Inactive")">Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Advisors" asp-action="Index" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No advisors found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Assigned Clubs</th>
+                <th>Status</th>
+                <th class="no-print action-column">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.User?.FullName</td>
+                    <td>@a.User?.Email</td>
+                    <td>@a.Phone</td>
+                    <td>@string.Join(", ", a.Clubs.Select(c => c.ClubName))</td>
+                    <td>@a.User?.Status</td>
+                    <td class="no-print action-column">
+                        <a asp-controller="Advisors" asp-action="Edit" asp-route-id="@a.AdvisorId" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form asp-controller="Advisors" asp-action="ToggleStatus" asp-route-id="@a.AdvisorId" method="post" class="d-inline">
+                            @if (a.User?.Status == UserStatus.Active)
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-warning">Deactivate</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                            }
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
