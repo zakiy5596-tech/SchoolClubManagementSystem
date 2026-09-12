@@ -1,0 +1,30 @@
+@model List<Club>
+@{
+    ViewData["Title"] = "My Clubs";
+}
+<h2>My Clubs</h2>
+@if (!Model.Any())
+{
+    <p>No clubs assigned to you found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var c in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@c.ClubName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@c.Category</h6>
+                        <p class="card-text">@c.Description</p>
+                        <p class="mb-1"><strong>Members:</strong> @c.Memberships.Count(m => m.Status == MembershipStatus.Approved)</p>
+                        <p class="mb-1"><strong>Upcoming Activities:</strong> @c.Events.Count(e => e.IsUpcoming)</p>
+                        <a asp-controller="Clubs" asp-action="Details" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-secondary">View Details</a>
+                        <a asp-controller="Clubs" asp-action="Members" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-primary">Members</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,68 @@
+@model List<Club>
+@{
+    ViewData["Title"] = "Available Clubs";
+    var categories = ViewData["Categories"] as List<string> ?? new();
+    var myMemberships = ViewData["MyMemberships"] as Dictionary<int, MembershipStatus> ?? new();
+}
+<h2>Available Clubs</h2>
+
+<form method="get" asp-controller="Clubs" asp-action="Available" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by club name" />
+    </div>
+    <div class="col-auto">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach (var c in categories)
+            {
+                if ((string?)ViewData["CategoryFilter"] == c)
+                {
+                    <option value="@c" selected>@c</option>
+                }
+                else
+                {
+                    <option value="@c">@c</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Clubs" asp-action="Available" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No clubs found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var c in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@c.ClubName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@c.Category</h6>
+                        <p class="card-text">@c.Description</p>
+                        <p class="mb-1"><strong>Advisor:</strong> @c.Advisor?.User?.FullName</p>
+                        @if (myMemberships.TryGetValue(c.ClubId, out var status))
+                        {
+                            @if (status == MembershipStatus.Approved)
+                            {
+                                <span class="badge bg-success">Member</span>
+                            }
+                            else if (status == MembershipStatus.Pending)
+                            {
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            }
+                        }
+                        <a asp-controller="Clubs" asp-action="Details" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

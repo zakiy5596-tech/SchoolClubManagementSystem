@@ -1,0 +1,94 @@
+@model List<Club>
+@{
+    ViewData["Title"] = "Clubs";
+    var categories = ViewData["Categories"] as List<string> ?? new();
+    var advisorList = ViewData["AdvisorList"] as List<Advisor> ?? new();
+}
+<partial name="_PrintHeader" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Clubs</h2>
+    <div>
+        <a asp-controller="Clubs" asp-action="Create" class="btn btn-primary">Create Club</a>
+        <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print Clubs</button>
+    </div>
+</div>
+
+<form method="get" asp-controller="Clubs" asp-action="Index" class="row g-2 mb-3 no-print filter-form">
+    <div class="col-auto">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by club name" />
+    </div>
+    <div class="col-auto">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach (var c in categories)
+            {
+                if ((string?)ViewData["CategoryFilter"] == c)
+                {
+                    <option value="@c" selected>@c</option>
+                }
+                else
+                {
+                    <option value="@c">@c</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="advisorId" class="form-select">
+            <option value="">All Advisors</option>
+            @foreach (var a in advisorList)
+            {
+                if ((int?)ViewData["AdvisorFilter"] == a.AdvisorId)
+                {
+                    <option value="@a.AdvisorId" selected>@a.User?.FullName</option>
+                }
+                else
+                {
+                    <option value="@a.AdvisorId">@a.User?.FullName</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a asp-controller="Clubs" asp-action="Index" class="btn btn-outline-secondary">Reset Filters</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>No clubs found.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Club ID</th>
+                <th>Club Name</th>
+                <th>Category</th>
+                <th>Advisor</th>
+                <th>Date Created</th>
+                <th class="no-print action-column">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.ClubId</td>
+                    <td>@c.ClubName</td>
+                    <td>@c.Category</td>
+                    <td>@c.Advisor?.User?.FullName</td>
+                    <td>@c.DateCreated.ToString("dd MMM yyyy")</td>
+                    <td class="no-print action-column">
+                        <a asp-controller="Clubs" asp-action="Details" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-secondary">View</a>
+                        <a asp-controller="Clubs" asp-action="Edit" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a asp-controller="Clubs" asp-action="Delete" asp-route-id="@c.ClubId" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

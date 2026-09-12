@@ -1,0 +1,62 @@
+@model Club
+@{
+    ViewData["Title"] = Model.ClubName;
+    var myMembership = ViewData["MyMembership"] as ClubMembership;
+}
+<h2>@Model.ClubName</h2>
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Category</dt><dd class="col-sm-9">@Model.Category</dd>
+            <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@Model.Description</dd>
+            <dt class="col-sm-3">Advisor</dt><dd class="col-sm-9">@Model.Advisor?.User?.FullName</dd>
+            <dt class="col-sm-3">Approved Members</dt><dd class="col-sm-9">@Model.Memberships.Count(m => m.Status == MembershipStatus.Approved)</dd>
+            <dt class="col-sm-3">Date Created</dt><dd class="col-sm-9">@Model.DateCreated.ToString("dd MMM yyyy")</dd>
+        </dl>
+    </div>
+</div>
+
+@if (User.IsInRole(Roles.Student))
+{
+    @if (myMembership == null)
+    {
+        <form asp-controller="Clubs" asp-action="Join" asp-route-id="@Model.ClubId" method="post">
+            <button type="submit" class="btn btn-primary">Apply to Join</button>
+        </form>
+    }
+    else if (myMembership.Status == MembershipStatus.Pending)
+    {
+        <span class="badge bg-warning text-dark">Membership request pending</span>
+    }
+    else if (myMembership.Status == MembershipStatus.Approved)
+    {
+        <span class="badge bg-success">You are a member</span>
+    }
+    else
+    {
+        <form asp-controller="Clubs" asp-action="Join" asp-route-id="@Model.ClubId" method="post">
+            <p class="text-danger">Your previous request was rejected. You may re-apply.</p>
+            <button type="submit" class="btn btn-primary">Apply to Join</button>
+        </form>
+    }
+}
+
+@if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Advisor))
+{
+    <a asp-controller="Clubs" asp-action="Members" asp-route-id="@Model.ClubId" class="btn btn-outline-primary mt-2">View Members</a>
+}
+
+<div class="mt-3">
+    @if (User.IsInRole(Roles.Admin))
+    {
+        <a asp-controller="Clubs" asp-action="Index" class="btn btn-outline-secondary">Back to Clubs</a>
+    }
+    else if (User.IsInRole(Roles.Advisor))
+    {
+        <a asp-controller="Clubs" asp-action="MyClubs" class="btn btn-outline-secondary">Back to My Clubs</a>
+    }
+    else
+    {
+        <a asp-controller="Clubs" asp-action="Available" class="btn btn-outline-secondary">Back to Clubs</a>
+    }
+</div>

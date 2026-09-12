@@ -1,0 +1,52 @@
+@model List<ClubMembership>
+@{
+    ViewData["Title"] = "My Clubs";
+}
+<h2>My Clubs</h2>
+@if (!Model.Any())
+{
+    <p>You have not joined any clubs yet.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Club Name</th>
+                <th>Category</th>
+                <th>Advisor</th>
+                <th>Status</th>
+                <th>Date Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.Club?.ClubName</td>
+                    <td>@m.Club?.Category</td>
+                    <td>@m.Club?.Advisor?.User?.FullName</td>
+                    <td>
+                        @if (m.Status == MembershipStatus.Approved)
+                        {
+                            <span class="badge bg-success">Approved</span>
+                        }
+                        else if (m.Status == MembershipStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Rejected</span>
+                        }
+                    </td>
+                    <td>@(m.DateJoined?.ToString("dd MMM yyyy") ?? "-")</td>
+                    <td>
+                        <a asp-controller="Clubs" asp-action="Details" asp-route-id="@m.ClubId" class="btn btn-sm btn-outline-secondary">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
