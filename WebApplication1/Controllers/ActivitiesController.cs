@@ -6,7 +6,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
-    [Authorize(Roles = Roles.Student)]
+    [Authorize(Roles = $"{Roles.Student},{Roles.Parent}")]
     public class ActivitiesController : Controller
     {
         private readonly ApplicationDbContext _context;

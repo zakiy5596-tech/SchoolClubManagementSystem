@@ -28,6 +28,7 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Users</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Students" asp-action="Index">Students</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Advisors" asp-action="Index">Advisors</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Parents" asp-action="Index">Parents</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Index">Clubs</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Memberships" asp-action="Index">Memberships</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Events" asp-action="Index">Activities</a></li>
@@ -47,6 +48,13 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Dashboard">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Available">Available Clubs</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="MyClubs">My Clubs</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Activities" asp-action="Index">Activities</a></li>
+                        }
+                        else if (User.IsInRole(Roles.Parent))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Parent" asp-action="Dashboard">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Available">Available Clubs</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="MyClubs">My Children's Clubs</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Activities" asp-action="Index">Activities</a></li>
                         }
                     </ul>

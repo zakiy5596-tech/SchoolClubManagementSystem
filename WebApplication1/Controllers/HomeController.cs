@@ -12,6 +12,7 @@ namespace WebApplication1.Controllers
                 if (User.IsInRole(Roles.Admin)) return RedirectToAction("Dashboard", "Admin");
                 if (User.IsInRole(Roles.Advisor)) return RedirectToAction("Dashboard", "Advisor");
                 if (User.IsInRole(Roles.Student)) return RedirectToAction("Dashboard", "Student");
+                if (User.IsInRole(Roles.Parent)) return RedirectToAction("Dashboard", "Parent");
             }
             return RedirectToAction("Login", "Account");
         }

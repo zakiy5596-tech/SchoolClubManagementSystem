@@ -1,0 +1,61 @@
+@model ParentFormViewModel
+@{
+    ViewData["Title"] = "Edit Parent";
+}
+<h2>Edit Parent</h2>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-controller="Parents" asp-action="Edit" asp-route-id="@Model.ParentId" method="post">
+            <input type="hidden" asp-for="ParentId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<UserStatus>()"></select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" placeholder="Leave blank to keep current password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Children (Students)</label>
+                <div class="border rounded p-2" style="max-height: 250px; overflow-y: auto;">
+                    @foreach (var s in Model.AllStudents)
+                    {
+                        var isChecked = Model.SelectedStudentIds.Contains(s.StudentId);
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="SelectedStudentIds" value="@s.StudentId" id="student_@s.StudentId" checked="@isChecked" />
+                            <label class="form-check-label" for="student_@s.StudentId">@s.User?.FullName (@s.StudentNumber)</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a asp-controller="Parents" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

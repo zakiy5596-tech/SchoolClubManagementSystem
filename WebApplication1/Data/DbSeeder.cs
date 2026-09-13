@@ -44,6 +44,47 @@ namespace WebApplication1.Data
             }
 
             await SeedDemoDataAsync(userManager, context);
+            await SeedDemoParentAsync(userManager, context);
+        }
+
+        private static async Task SeedDemoParentAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        {
+            const string parentEmail = "p.smith@scms.local";
+            if (await userManager.FindByEmailAsync(parentEmail) != null)
+            {
+                return;
+            }
+
+            var linkedStudents = await context.Students
+                .Where(s => s.StudentNumber == "STU-1001" || s.StudentNumber == "STU-1002")
+                .ToListAsync();
+
+            if (!linkedStudents.Any())
+            {
+                return;
+            }
+
+            var parentUser = new ApplicationUser
+            {
+                UserName = parentEmail,
+                Email = parentEmail,
+                EmailConfirmed = true,
+                FullName = "Robert Smith",
+                Status = UserStatus.Active,
+                CreatedAt = DateTime.Now
+            };
+            await userManager.CreateAsync(parentUser, "Parent@123");
+            await userManager.AddToRoleAsync(parentUser, Roles.Parent);
+
+            var parent = new Parent { UserId = parentUser.Id, Phone = "555-0301" };
+            context.Parents.Add(parent);
+            await context.SaveChangesAsync();
+
+            foreach (var student in linkedStudents)
+            {
+                context.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = student.StudentId });
+            }
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedDemoDataAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context)

@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = Model.ClubName;
     var myMembership = ViewData["MyMembership"] as ClubMembership;
+    var myChildren = ViewData["MyChildren"] as List<Student> ?? new();
+    var childMemberships = ViewData["ChildMemberships"] as Dictionary<int, ClubMembership> ?? new();
 }
 <h2>@Model.ClubName</h2>
 <div class="card shadow-sm mb-3">
@@ -38,6 +40,59 @@
             <p class="text-danger">Your previous request was rejected. You may re-apply.</p>
             <button type="submit" class="btn btn-primary">Apply to Join</button>
         </form>
+    }
+}
+
+@if (User.IsInRole(Roles.Parent))
+{
+    <h5>Register a Child</h5>
+    @if (!myChildren.Any())
+    {
+        <p>No linked children found on your account. Please contact the administrator.</p>
+    }
+    else
+    {
+        <table class="table table-bordered w-auto">
+            <thead><tr><th>Child</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var child in myChildren)
+                {
+                    <tr>
+                        <td>@child.User?.FullName (@child.StudentNumber)</td>
+                        <td>
+                            @if (childMemberships.TryGetValue(child.StudentId, out var m))
+                            {
+                                @if (m.Status == MembershipStatus.Approved)
+                                {
+                                    <span class="badge bg-success">Member</span>
+                                }
+                                else if (m.Status == MembershipStatus.Pending)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Rejected</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not registered</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!childMemberships.TryGetValue(child.StudentId, out var existing) || existing.Status == MembershipStatus.Rejected)
+                            {
+                                <form asp-controller="Clubs" asp-action="JoinAsParent" asp-route-id="@Model.ClubId" method="post">
+                                    <input type="hidden" name="studentId" value="@child.StudentId" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Register</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
 }
 

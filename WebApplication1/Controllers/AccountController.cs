@@ -133,6 +133,14 @@ namespace WebApplication1.Controllers
                     model.Phone = advisor.Phone;
                 }
             }
+            else if (roles.Contains(Roles.Parent))
+            {
+                var parent = await _context.Parents.FirstOrDefaultAsync(p => p.UserId == user.Id);
+                if (parent != null)
+                {
+                    model.Phone = parent.Phone;
+                }
+            }
 
             return View(model);
         }
@@ -172,6 +180,14 @@ namespace WebApplication1.Controllers
                 if (advisor != null)
                 {
                     advisor.Phone = model.Phone;
+                }
+            }
+            else if (roles.Contains(Roles.Parent))
+            {
+                var parent = await _context.Parents.FirstOrDefaultAsync(p => p.UserId == user.Id);
+                if (parent != null)
+                {
+                    parent.Phone = model.Phone;
                 }
             }
 

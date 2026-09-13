@@ -16,5 +16,6 @@ namespace WebApplication1.Models
 
         public Student? Student { get; set; }
         public Advisor? Advisor { get; set; }
+        public Parent? Parent { get; set; }
     }
 }

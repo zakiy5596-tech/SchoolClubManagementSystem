@@ -172,12 +172,13 @@ namespace WebApplication1.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = $"{Roles.Advisor},{Roles.Student}")]
+        [Authorize(Roles = $"{Roles.Advisor},{Roles.Student},{Roles.Parent}")]
         public async Task<IActionResult> MyClubs()
         {
+            var userId = _userManager.GetUserId(User);
+
             if (User.IsInRole(Roles.Advisor))
             {
-                var userId = _userManager.GetUserId(User);
                 var advisor = await _context.Advisors.FirstOrDefaultAsync(a => a.UserId == userId);
                 if (advisor == null) return View("AdvisorMyClubs", new List<Club>());
 
@@ -189,9 +190,8 @@ namespace WebApplication1.Controllers
 
                 return View("AdvisorMyClubs", clubs);
             }
-            else
+            else if (User.IsInRole(Roles.Student))
             {
-                var userId = _userManager.GetUserId(User);
                 var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
                 if (student == null) return View("StudentMyClubs", new List<ClubMembership>());
 
@@ -202,14 +202,27 @@ namespace WebApplication1.Controllers
 
                 return View("StudentMyClubs", memberships);
             }
+            else
+            {
+                var parent = await _context.Parents.Include(p => p.Children).FirstOrDefaultAsync(p => p.UserId == userId);
+                if (parent == null) return View("ParentMyClubs", new List<ClubMembership>());
+
+                var childIds = parent.Children.Select(c => c.StudentId).ToList();
+                var memberships = await _context.ClubMemberships
+                    .Where(m => childIds.Contains(m.StudentId))
+                    .Include(m => m.Student).ThenInclude(s => s!.User)
+                    .Include(m => m.Club).ThenInclude(c => c!.Advisor).ThenInclude(a => a!.User)
+                    .OrderBy(m => m.Student!.User!.FullName)
+                    .ToListAsync();
+
+                return View("ParentMyClubs", memberships);
+            }
         }
 
-        [Authorize(Roles = Roles.Student)]
+        [Authorize(Roles = $"{Roles.Student},{Roles.Parent}")]
         public async Task<IActionResult> Available(string? search, string? category)
         {
             var userId = _userManager.GetUserId(User);
-            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
-            if (student == null) return NotFound();
 
             var query = _context.Clubs.Include(c => c.Advisor).ThenInclude(a => a!.User).AsQueryable();
 
@@ -223,11 +236,19 @@ namespace WebApplication1.Controllers
             }
 
             var clubs = await query.OrderBy(c => c.ClubName).ToListAsync();
-            var myMemberships = await _context.ClubMemberships
-                .Where(m => m.StudentId == student.StudentId)
-                .ToDictionaryAsync(m => m.ClubId, m => m.Status);
 
-            ViewData["MyMemberships"] = myMemberships;
+            if (User.IsInRole(Roles.Student))
+            {
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+                if (student == null) return NotFound();
+
+                var myMemberships = await _context.ClubMemberships
+                    .Where(m => m.StudentId == student.StudentId)
+                    .ToDictionaryAsync(m => m.ClubId, m => m.Status);
+
+                ViewData["MyMemberships"] = myMemberships;
+            }
+
             ViewData["Search"] = search;
             ViewData["CategoryFilter"] = category;
             ViewData["Categories"] = await _context.Clubs.Select(c => c.Category).Distinct().OrderBy(c => c).ToListAsync();
@@ -251,6 +272,21 @@ namespace WebApplication1.Controllers
                 var membership = student == null ? null : await _context.ClubMemberships
                     .FirstOrDefaultAsync(m => m.ClubId == id && m.StudentId == student.StudentId);
                 ViewData["MyMembership"] = membership;
+            }
+            else if (User.IsInRole(Roles.Parent))
+            {
+                var userId = _userManager.GetUserId(User);
+                var parent = await _context.Parents.Include(p => p.Children).ThenInclude(c => c.Student).ThenInclude(s => s!.User)
+                    .FirstOrDefaultAsync(p => p.UserId == userId);
+
+                var children = parent?.Children.Select(c => c.Student!).ToList() ?? new List<Student>();
+                var childIds = children.Select(c => c.StudentId).ToList();
+                var childMemberships = await _context.ClubMemberships
+                    .Where(m => m.ClubId == id && childIds.Contains(m.StudentId))
+                    .ToDictionaryAsync(m => m.StudentId, m => m);
+
+                ViewData["MyChildren"] = children;
+                ViewData["ChildMemberships"] = childMemberships;
             }
 
             return View(club);
@@ -289,6 +325,52 @@ namespace WebApplication1.Controllers
             await _context.SaveChangesAsync();
 
             await _logger.LogAsync(userId, User.Identity!.Name!, "Membership Requested", $"Requested to join {club.ClubName}.");
+
+            TempData["Success"] = "Membership request submitted successfully.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [Authorize(Roles = Roles.Parent)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> JoinAsParent(int id, int studentId)
+        {
+            var userId = _userManager.GetUserId(User);
+            var parent = await _context.Parents.Include(p => p.Children)
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (parent == null || !parent.Children.Any(c => c.StudentId == studentId))
+            {
+                TempData["Error"] = "You are not authorized to register this student.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var club = await _context.Clubs.FindAsync(id);
+            if (club == null) return NotFound();
+
+            var existing = await _context.ClubMemberships
+                .FirstOrDefaultAsync(m => m.ClubId == id && m.StudentId == studentId && m.Status != MembershipStatus.Rejected);
+
+            if (existing != null)
+            {
+                TempData["Error"] = existing.Status == MembershipStatus.Approved
+                    ? "This student is already a member of this club."
+                    : "A membership request for this student is already pending for this club.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            _context.ClubMemberships.Add(new ClubMembership
+            {
+                StudentId = studentId,
+                ClubId = id,
+                Status = MembershipStatus.Pending,
+                RequestedAt = DateTime.Now
+            });
+            await _context.SaveChangesAsync();
+
+            var student = await _context.Students.Include(s => s.User).FirstOrDefaultAsync(s => s.StudentId == studentId);
+            await _logger.LogAsync(userId, User.Identity!.Name!, "Membership Requested",
+                $"Registered {student?.User?.FullName} for {club.ClubName}.");
 
             TempData["Success"] = "Membership request submitted successfully.";
             return RedirectToAction(nameof(Details), new { id });

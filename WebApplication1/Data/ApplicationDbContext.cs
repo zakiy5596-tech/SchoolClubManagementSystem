@@ -13,6 +13,8 @@ namespace WebApplication1.Data
 
         public DbSet<Student> Students => Set<Student>();
         public DbSet<Advisor> Advisors => Set<Advisor>();
+        public DbSet<Parent> Parents => Set<Parent>();
+        public DbSet<ParentStudent> ParentStudents => Set<ParentStudent>();
         public DbSet<Club> Clubs => Set<Club>();
         public DbSet<ClubMembership> ClubMemberships => Set<ClubMembership>();
         public DbSet<Event> Events => Set<Event>();
@@ -32,6 +34,24 @@ namespace WebApplication1.Data
 
             builder.Entity<Advisor>()
                 .HasIndex(a => a.UserId)
+                .IsUnique();
+
+            builder.Entity<Parent>()
+                .HasIndex(p => p.UserId)
+                .IsUnique();
+
+            builder.Entity<ParentStudent>()
+                .HasOne(ps => ps.Parent)
+                .WithMany(p => p.Children)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ParentStudent>()
+                .HasOne(ps => ps.Student)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ParentStudent>()
+                .HasIndex(ps => new { ps.ParentId, ps.StudentId })
                 .IsUnique();
 
             builder.Entity<Club>()

@@ -410,6 +410,54 @@ namespace WebApplication1.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Parent", b =>
+                {
+                    b.Property<int>("ParentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ParentId"));
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ParentId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Parents");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ParentStudent", b =>
+                {
+                    b.Property<int>("ParentStudentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ParentStudentId"));
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ParentStudentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("ParentId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("ParentStudents");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Student", b =>
                 {
                     b.Property<int>("StudentId")
@@ -545,6 +593,36 @@ namespace WebApplication1.Migrations
                     b.Navigation("Club");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Parent", b =>
+                {
+                    b.HasOne("WebApplication1.Models.ApplicationUser", "User")
+                        .WithOne("Parent")
+                        .HasForeignKey("WebApplication1.Models.Parent", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ParentStudent", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Parent", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Student", b =>
                 {
                     b.HasOne("WebApplication1.Models.ApplicationUser", "User")
@@ -565,6 +643,8 @@ namespace WebApplication1.Migrations
                 {
                     b.Navigation("Advisor");
 
+                    b.Navigation("Parent");
+
                     b.Navigation("Student");
                 });
 
@@ -573,6 +653,11 @@ namespace WebApplication1.Migrations
                     b.Navigation("Events");
 
                     b.Navigation("Memberships");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Parent", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Student", b =>
