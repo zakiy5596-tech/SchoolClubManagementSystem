@@ -1,45 +1,49 @@
-@model AdvisorDashboardViewModel
+﻿@model AdvisorDashboardViewModel
 @{
     ViewData["Title"] = "Advisor Dashboard";
 }
-<h2>Advisor Dashboard</h2>
+<h2 class="mb-4">Advisor Dashboard</h2>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h3>@Model.AssignedClubs.Count</h3>
-                <p class="mb-0">Assigned Clubs</p>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <span class="stat-icon stat-purple"><partial name="_Icon" model="@("flag")" /></span>
+            <div>
+                <div class="stat-value">@Model.AssignedClubs.Count</div>
+                <div class="stat-label">Assigned Clubs</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h3>@Model.TotalMembers</h3>
-                <p class="mb-0">Total Members</p>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <span class="stat-icon stat-primary"><partial name="_Icon" model="@("users")" /></span>
+            <div>
+                <div class="stat-value">@Model.TotalMembers</div>
+                <div class="stat-label">Total Members</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h3>@Model.PendingMembershipRequests</h3>
-                <p class="mb-0">Pending Requests</p>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <span class="stat-icon stat-warning"><partial name="_Icon" model="@("clipboard")" /></span>
+            <div>
+                <div class="stat-value">@Model.PendingMembershipRequests</div>
+                <div class="stat-label">Pending Requests</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h3>@Model.UpcomingActivities.Count</h3>
-                <p class="mb-0">Upcoming Activities</p>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <span class="stat-icon stat-success"><partial name="_Icon" model="@("calendar")" /></span>
+            <div>
+                <div class="stat-value">@Model.UpcomingActivities.Count</div>
+                <div class="stat-label">Upcoming Activities</div>
             </div>
         </div>
     </div>
 </div>
 
-<h4>My Clubs</h4>
+<h4 class="mb-3">My Clubs</h4>
 @if (!Model.AssignedClubs.Any())
 {
     <p>No clubs found.</p>
@@ -62,14 +66,15 @@ else
     </div>
 }
 
-<h4>Upcoming Activities</h4>
+<h4 class="mb-3">Upcoming Activities</h4>
 @if (!Model.UpcomingActivities.Any())
 {
     <p>No upcoming activities found.</p>
 }
 else
 {
-    <table class="table table-striped table-bordered">
+    <div class="table-card">
+        <table class="table table-hover mb-0">
         <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Location</th></tr></thead>
         <tbody>
             @foreach (var e in Model.UpcomingActivities)
@@ -83,4 +88,5 @@ else
             }
         </tbody>
     </table>
+    </div>
 }

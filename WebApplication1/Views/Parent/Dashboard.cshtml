@@ -1,8 +1,38 @@
-@model ParentDashboardViewModel
+﻿@model ParentDashboardViewModel
 @{
     ViewData["Title"] = "Parent Dashboard";
 }
-<h2>Welcome, @Model.Parent.User?.FullName</h2>
+<h2 class="mb-4">Welcome, @Model.Parent.User?.FullName</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4">
+        <div class="stat-card">
+            <span class="stat-icon stat-primary"><partial name="_Icon" model="@("users")" /></span>
+            <div>
+                <div class="stat-value">@Model.Children.Count</div>
+                <div class="stat-label">My Children</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="stat-card">
+            <span class="stat-icon stat-purple"><partial name="_Icon" model="@("bookmark")" /></span>
+            <div>
+                <div class="stat-value">@Model.ChildMemberships.Count(m => m.Status == MembershipStatus.Approved)</div>
+                <div class="stat-label">Active Club Memberships</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="stat-card">
+            <span class="stat-icon stat-success"><partial name="_Icon" model="@("calendar")" /></span>
+            <div>
+                <div class="stat-value">@Model.UpcomingActivities.Count</div>
+                <div class="stat-label">Upcoming Activities</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="card shadow-sm mb-4">
     <div class="card-body">
@@ -25,14 +55,15 @@
 
 <div class="row mb-4">
     <div class="col-md-6">
-        <h4>Club Memberships</h4>
+        <h4 class="mb-3">Club Memberships</h4>
         @if (!Model.ChildMemberships.Any())
         {
             <p>No club memberships found.</p>
         }
         else
         {
-            <table class="table table-striped table-bordered">
+            <div class="table-card">
+                <table class="table table-hover mb-0">
                 <thead><tr><th>Child</th><th>Club</th><th>Status</th></tr></thead>
                 <tbody>
                     @foreach (var m in Model.ChildMemberships)
@@ -45,19 +76,21 @@
                     }
                 </tbody>
             </table>
+            </div>
         }
         <a asp-controller="Clubs" asp-action="MyClubs" class="btn btn-sm btn-outline-primary">View All</a>
         <a asp-controller="Clubs" asp-action="Available" class="btn btn-sm btn-outline-secondary">Browse Clubs</a>
     </div>
     <div class="col-md-6">
-        <h4>Upcoming Activities</h4>
+        <h4 class="mb-3">Upcoming Activities</h4>
         @if (!Model.UpcomingActivities.Any())
         {
             <p>No upcoming activities found.</p>
         }
         else
         {
-            <table class="table table-striped table-bordered">
+            <div class="table-card">
+                <table class="table table-hover mb-0">
                 <thead><tr><th>Title</th><th>Club</th><th>Date</th></tr></thead>
                 <tbody>
                     @foreach (var e in Model.UpcomingActivities)
@@ -70,6 +103,7 @@
                     }
                 </tbody>
             </table>
+            </div>
         }
         <a asp-controller="Activities" asp-action="Index" class="btn btn-sm btn-outline-primary">View All Activities</a>
     </div>

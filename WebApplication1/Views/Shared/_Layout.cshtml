@@ -11,84 +11,133 @@
 <body>
     @{
         var isAuthed = User.Identity != null && User.Identity.IsAuthenticated;
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        bool IsActive(params string[] controllers) =>
+            controllers.Any(c => string.Equals(currentController, c, StringComparison.OrdinalIgnoreCase));
+        var displayName = isAuthed ? (User.Identity!.Name ?? "") : "";
+        var initials = string.IsNullOrEmpty(displayName) ? "?" : displayName.Substring(0, 1).ToUpper();
+        var roleLabel = User.IsInRole(Roles.Admin) ? "Administrator"
+            : User.IsInRole(Roles.Advisor) ? "Club Advisor"
+            : User.IsInRole(Roles.Student) ? "Student"
+            : User.IsInRole(Roles.Parent) ? "Parent / Guardian"
+            : "";
     }
     @if (isAuthed)
     {
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark no-print">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">SCMS</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto">
-                        @if (User.IsInRole(Roles.Admin))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Users</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Students" asp-action="Index">Students</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Advisors" asp-action="Index">Advisors</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Parents" asp-action="Index">Parents</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Index">Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Memberships" asp-action="Index">Memberships</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Events" asp-action="Index">Activities</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="ActivityLogs" asp-action="Index">Activity Logs</a></li>
-                        }
-                        else if (User.IsInRole(Roles.Advisor))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Advisor" asp-action="Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="MyClubs">My Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Memberships" asp-action="Index">Membership Requests</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Events" asp-action="Index">Activities/Events</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index">Reports</a></li>
-                        }
-                        else if (User.IsInRole(Roles.Student))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Available">Available Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="MyClubs">My Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Activities" asp-action="Index">Activities</a></li>
-                        }
-                        else if (User.IsInRole(Roles.Parent))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Parent" asp-action="Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="Available">Available Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clubs" asp-action="MyClubs">My Children's Clubs</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Activities" asp-action="Index">Activities</a></li>
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Profile">@User.Identity!.Name</a></li>
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                            </form>
-                        </li>
-                    </ul>
+        <div class="app-shell">
+            <div class="sidebar-backdrop no-print" onclick="document.body.classList.remove('sidebar-open')"></div>
+            <aside class="sidebar no-print">
+                <div class="sidebar-brand">
+                    <span class="brand-mark">S</span>
+                    <span>SCMS</span>
+                </div>
+                <ul class="sidebar-nav">
+                    @if (User.IsInRole(Roles.Admin))
+                    {
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Admin") ? "active" : "")" asp-controller="Admin" asp-action="Dashboard"><partial name="_Icon" model="@("home")" /> Dashboard</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Users") ? "active" : "")" asp-controller="Users" asp-action="Index"><partial name="_Icon" model="@("users")" /> Users</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Students") ? "active" : "")" asp-controller="Students" asp-action="Index"><partial name="_Icon" model="@("book")" /> Students</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Advisors") ? "active" : "")" asp-controller="Advisors" asp-action="Index"><partial name="_Icon" model="@("user-check")" /> Advisors</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Parents") ? "active" : "")" asp-controller="Parents" asp-action="Index"><partial name="_Icon" model="@("user-plus")" /> Parents</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") ? "active" : "")" asp-controller="Clubs" asp-action="Index"><partial name="_Icon" model="@("flag")" /> Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Memberships") ? "active" : "")" asp-controller="Memberships" asp-action="Index"><partial name="_Icon" model="@("clipboard")" /> Memberships</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Events") ? "active" : "")" asp-controller="Events" asp-action="Index"><partial name="_Icon" model="@("calendar")" /> Activities</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Reports") ? "active" : "")" asp-controller="Reports" asp-action="Index"><partial name="_Icon" model="@("bar-chart")" /> Reports</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("ActivityLogs") ? "active" : "")" asp-controller="ActivityLogs" asp-action="Index"><partial name="_Icon" model="@("clock")" /> Activity Logs</a></li>
+                    }
+                    else if (User.IsInRole(Roles.Advisor))
+                    {
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Advisor") ? "active" : "")" asp-controller="Advisor" asp-action="Dashboard"><partial name="_Icon" model="@("home")" /> Dashboard</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") ? "active" : "")" asp-controller="Clubs" asp-action="MyClubs"><partial name="_Icon" model="@("flag")" /> My Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Memberships") ? "active" : "")" asp-controller="Memberships" asp-action="Index"><partial name="_Icon" model="@("clipboard")" /> Membership Requests</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Events") ? "active" : "")" asp-controller="Events" asp-action="Index"><partial name="_Icon" model="@("calendar")" /> Activities/Events</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Reports") ? "active" : "")" asp-controller="Reports" asp-action="Index"><partial name="_Icon" model="@("bar-chart")" /> Reports</a></li>
+                    }
+                    else if (User.IsInRole(Roles.Student))
+                    {
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Student") ? "active" : "")" asp-controller="Student" asp-action="Dashboard"><partial name="_Icon" model="@("home")" /> Dashboard</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") && ViewContext.RouteData.Values["action"]!.ToString() == "Available" ? "active" : "")" asp-controller="Clubs" asp-action="Available"><partial name="_Icon" model="@("compass")" /> Available Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") && ViewContext.RouteData.Values["action"]!.ToString() == "MyClubs" ? "active" : "")" asp-controller="Clubs" asp-action="MyClubs"><partial name="_Icon" model="@("bookmark")" /> My Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Activities") ? "active" : "")" asp-controller="Activities" asp-action="Index"><partial name="_Icon" model="@("calendar")" /> Activities</a></li>
+                    }
+                    else if (User.IsInRole(Roles.Parent))
+                    {
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Parent") ? "active" : "")" asp-controller="Parent" asp-action="Dashboard"><partial name="_Icon" model="@("home")" /> Dashboard</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") && ViewContext.RouteData.Values["action"]!.ToString() == "Available" ? "active" : "")" asp-controller="Clubs" asp-action="Available"><partial name="_Icon" model="@("compass")" /> Available Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Clubs") && ViewContext.RouteData.Values["action"]!.ToString() == "MyClubs" ? "active" : "")" asp-controller="Clubs" asp-action="MyClubs"><partial name="_Icon" model="@("bookmark")" /> My Children's Clubs</a></li>
+                        <li class="nav-item"><a class="sidebar-link @(IsActive("Activities") ? "active" : "")" asp-controller="Activities" asp-action="Index"><partial name="_Icon" model="@("calendar")" /> Activities</a></li>
+                    }
+                </ul>
+                <div class="sidebar-footer">
+                    <a class="sidebar-user text-decoration-none" asp-controller="Account" asp-action="Profile">
+                        <span class="sidebar-avatar">@initials</span>
+                        <span class="sidebar-user-info">
+                            <span class="sidebar-user-name d-block">@displayName</span>
+                            <span class="sidebar-user-role">@roleLabel</span>
+                        </span>
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                            <partial name="_Icon" model="@("log-out")" /> Logout
+                        </button>
+                    </form>
+                </div>
+            </aside>
+
+            <div class="app-main">
+                <header class="topbar no-print">
+                    <button type="button" class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
+                        <partial name="_Icon" model="@("menu")" />
+                    </button>
+                    <h1 class="topbar-title">@ViewData["Title"]</h1>
+                </header>
+                <div class="content-wrapper">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    <main role="main">
+                        @RenderBody()
+                    </main>
                 </div>
             </div>
-        </nav>
+        </div>
     }
-    <div class="container-fluid mt-3">
-        @if (TempData["Success"] != null)
+    else
+    {
+        @if (TempData["Success"] != null || TempData["Error"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-                @TempData["Success"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
-                @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="container-fluid mt-3">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
             </div>
         }
         <main role="main">
             @RenderBody()
         </main>
-    </div>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

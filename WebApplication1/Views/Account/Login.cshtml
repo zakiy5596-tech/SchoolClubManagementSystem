@@ -3,26 +3,41 @@
     ViewData["Title"] = "Login";
     Layout = "_Layout";
 }
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-1">School Club Management System</h3>
-                <p class="text-center text-muted mb-4">Sign in to continue</p>
-                <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" autocomplete="username" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="login-shell">
+    <div class="row justify-content-center w-100 mx-0">
+        <div class="col-11 col-sm-8 col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <span class="brand-mark d-inline-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;border-radius:14px;background:rgba(79,70,229,.12);color:#4f46e5;font-weight:800;font-size:1.4rem;">S</span>
+                        <h3 class="card-title mb-1">School Club Management System</h3>
+                        <p id="loginSubtitle" class="text-muted mb-0">Sign in to continue</p>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+
+                    <div class="btn-group w-100 mb-4" role="group" aria-label="Login as">
+                        <button type="button" id="btnStaff" class="btn btn-outline-primary active" onclick="setLoginMode('staff')">Admin / Advisor / Student</button>
+                        <button type="button" id="btnParent" class="btn btn-outline-primary" onclick="setLoginMode('parent')">Parent / Guardian</button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
+
+                    <p id="parentHint" class="text-muted small" style="display:none">
+                        Use the email and password given to you by the school administrator to view your child's clubs and activities.
+                    </p>
+
+                    <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" autocomplete="username" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -30,4 +45,15 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        function setLoginMode(mode) {
+            var isParent = mode === 'parent';
+            document.getElementById('btnStaff').classList.toggle('active', !isParent);
+            document.getElementById('btnParent').classList.toggle('active', isParent);
+            document.getElementById('parentHint').style.display = isParent ? 'block' : 'none';
+            document.getElementById('loginSubtitle').textContent = isParent
+                ? 'Parent / Guardian sign in'
+                : 'Sign in to continue';
+        }
+    </script>
 }

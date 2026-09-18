@@ -1,5 +1,5 @@
 @media print {
-    .no-print, nav, .navbar, .sidebar, .btn, form.filter-form, .filter-bar, .action-column, .pagination {
+    .no-print, nav, .navbar, .sidebar, .sidebar-backdrop, .topbar, .btn, form.filter-form, .filter-bar, .action-column, .pagination {
         display: none !important;
     }
 
@@ -11,10 +11,24 @@
         background: #fff !important;
     }
 
+    .app-shell, .app-main {
+        display: block !important;
+        margin: 0 !important;
+    }
+
+    .content-wrapper {
+        padding: 0 !important;
+    }
+
     .container-fluid {
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+
+    .card, .table-card {
+        box-shadow: none !important;
+        border: none !important;
     }
 
     table {
