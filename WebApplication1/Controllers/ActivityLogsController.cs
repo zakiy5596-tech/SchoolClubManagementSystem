@@ -16,7 +16,7 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? search, string? action, DateTime? date)
+        public async Task<IActionResult> Index(string? search, string? actionType, DateTime? date)
         {
             var query = _context.ActivityLogs.AsQueryable();
 
@@ -24,9 +24,9 @@ namespace WebApplication1.Controllers
             {
                 query = query.Where(l => l.UserName.Contains(search) || l.Description.Contains(search));
             }
-            if (!string.IsNullOrWhiteSpace(action))
+            if (!string.IsNullOrWhiteSpace(actionType))
             {
-                query = query.Where(l => l.Action == action);
+                query = query.Where(l => l.Action == actionType);
             }
             if (date.HasValue)
             {
@@ -36,7 +36,7 @@ namespace WebApplication1.Controllers
             var logs = await query.OrderByDescending(l => l.Timestamp).Take(500).ToListAsync();
 
             ViewData["Search"] = search;
-            ViewData["ActionFilter"] = action;
+            ViewData["ActionFilter"] = actionType;
             ViewData["DateFilter"] = date?.ToString("yyyy-MM-dd");
             ViewData["Actions"] = await _context.ActivityLogs.Select(l => l.Action).Distinct().OrderBy(a => a).ToListAsync();
             ViewData["ReportTitle"] = "Activity Logs";
