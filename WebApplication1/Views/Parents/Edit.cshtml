@@ -39,15 +39,17 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Children (Students)</label>
-                <div class="border rounded p-2" style="max-height: 250px; overflow-y: auto;">
+                <input type="text" id="studentSearch" class="form-control mb-2" placeholder="Search students by name or student number..." autocomplete="off" />
+                <div class="border rounded p-2" id="studentChecklist" style="max-height: 250px; overflow-y: auto;">
                     @foreach (var s in Model.AllStudents)
                     {
                         var isChecked = Model.SelectedStudentIds.Contains(s.StudentId);
-                        <div class="form-check">
+                        <div class="form-check student-check-item" data-search="@($"{s.User?.FullName} {s.StudentNumber}".ToLower())">
                             <input class="form-check-input" type="checkbox" name="SelectedStudentIds" value="@s.StudentId" id="student_@s.StudentId" checked="@isChecked" />
                             <label class="form-check-label" for="student_@s.StudentId">@s.User?.FullName (@s.StudentNumber)</label>
                         </div>
                     }
+                    <p class="text-muted small mb-0 d-none" id="studentNoMatch">No students found.</p>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -58,4 +60,21 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (function () {
+            var search = document.getElementById('studentSearch');
+            var items = document.querySelectorAll('#studentChecklist .student-check-item');
+            var noMatch = document.getElementById('studentNoMatch');
+            search.addEventListener('input', function () {
+                var term = search.value.trim().toLowerCase();
+                var visibleCount = 0;
+                items.forEach(function (item) {
+                    var match = item.getAttribute('data-search').includes(term);
+                    item.classList.toggle('d-none', !match);
+                    if (match) visibleCount++;
+                });
+                noMatch.classList.toggle('d-none', visibleCount !== 0);
+            });
+        })();
+    </script>
 }
